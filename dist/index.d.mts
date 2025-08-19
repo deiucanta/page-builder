@@ -2,7 +2,7 @@ import * as react_jsx_runtime from 'react/jsx-runtime';
 import * as mobx_state_tree_dist_internal from 'mobx-state-tree/dist/internal';
 import * as mobx from 'mobx';
 import * as mobx_state_tree from 'mobx-state-tree';
-import { IAnyModelType, Instance } from 'mobx-state-tree';
+import { IAnyModelType, Instance, SnapshotIn } from 'mobx-state-tree';
 export { Instance } from 'mobx-state-tree';
 
 declare const Node: mobx_state_tree.IModelType<{
@@ -126,9 +126,10 @@ declare const Block: mobx_state_tree.IModelType<{
     }, mobx_state_tree._NotCustomized, mobx_state_tree._NotCustomized>]>>;
 }, {}, mobx_state_tree._NotCustomized, mobx_state_tree._NotCustomized>;
 type BlockType = Instance<typeof Block>;
+type BlockSnapshotIn = SnapshotIn<typeof Block>;
 
 interface PageBuilderProps {
-    blocks: BlockType[];
+    blocks: BlockSnapshotIn[];
     initialData?: any;
     onDataChange?: (data: any) => void;
     onSave?: (data: any) => Promise<void>;

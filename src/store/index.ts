@@ -2,9 +2,9 @@ import { RootStore } from '@/store/RootStore'
 import { Instance } from 'mobx-state-tree'
 import { UndoManager } from 'mst-middlewares'
 import { createContext, useContext } from 'react'
-import { BlockType } from '@/store/Block'
+import { BlockSnapshotIn } from '@/store/Block'
 
-export function createStoreAndHistory(blocks: BlockType[]) {
+export function createStoreAndHistory(blocks: BlockSnapshotIn[]) {
   const store = RootStore.create({
     root: {
       id: 'root',

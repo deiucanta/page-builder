@@ -1,5 +1,5 @@
 import { Field } from '@/store/Field'
-import { types, Instance } from 'mobx-state-tree'
+import { types, Instance, SnapshotIn } from 'mobx-state-tree'
 
 export const Block = types.model('Block', {
   type: types.identifier,
@@ -7,3 +7,4 @@ export const Block = types.model('Block', {
 })
 
 export type BlockType = Instance<typeof Block>
+export type BlockSnapshotIn = SnapshotIn<typeof Block>

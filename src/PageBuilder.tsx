@@ -25,10 +25,10 @@ import {
   useStoreHistory,
 } from '@/store'
 import { startCase } from 'lodash'
-import { BlockType } from '@/store/Block'
+import { BlockSnapshotIn } from '@/store/Block'
 
 export interface PageBuilderProps {
-  blocks: BlockType[]
+  blocks: any[] // Raw block definitions
   initialData?: any
   onDataChange?: (data: any) => void
   onSave?: (data: any) => Promise<void>
