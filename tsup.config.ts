@@ -6,7 +6,15 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-  external: ['react', 'react-dom'],
+  external: [
+    'react',
+    'react-dom',
+    'react/jsx-runtime',
+    'mobx',
+    'mobx-react-lite',
+    'mobx-state-tree',
+    'mst-middlewares'
+  ],
   noExternal: [
     '@radix-ui/react-accordion',
     '@radix-ui/react-checkbox',
@@ -19,15 +27,14 @@ export default defineConfig({
     'clsx',
     'lodash',
     'lucide-react',
-    'mobx-react-lite',
-    'mobx-state-tree',
-    'mst-middlewares',
     'react-arborist',
     'tailwind-merge',
     'use-resize-observer'
   ],
   esbuildOptions(options) {
     options.jsx = 'automatic'
+    options.platform = 'browser'
+    options.target = 'es2020'
   },
   onSuccess: 'npm run build:css',
 })
