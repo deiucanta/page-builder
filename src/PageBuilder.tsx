@@ -28,7 +28,7 @@ import { startCase } from 'lodash'
 import { BlockSnapshotIn } from '@/store/Block'
 
 export interface PageBuilderProps {
-  blocks: any[] // Raw block definitions
+  blocks: BlockSnapshotIn[] // Block snapshot definitions
   initialData?: any
   onDataChange?: (data: any) => void
   onSave?: (data: any) => Promise<void>
