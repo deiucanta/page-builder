@@ -1514,6 +1514,82 @@ var require_react_dom = __commonJS({
   }
 });
 
+// node_modules/.pnpm/use-sync-external-store@1.5.0_react@19.1.1/node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.development.js
+var require_use_sync_external_store_shim_development = __commonJS({
+  "node_modules/.pnpm/use-sync-external-store@1.5.0_react@19.1.1/node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.development.js"(exports) {
+    "use strict";
+    (function() {
+      function is(x, y) {
+        return x === y && (0 !== x || 1 / x === 1 / y) || x !== x && y !== y;
+      }
+      function useSyncExternalStore$2(subscribe, getSnapshot2) {
+        didWarnOld18Alpha || void 0 === React46.startTransition || (didWarnOld18Alpha = true, console.error(
+          "You are using an outdated, pre-release alpha of React 18 that does not support useSyncExternalStore. The use-sync-external-store shim will not work correctly. Upgrade to a newer pre-release."
+        ));
+        var value = getSnapshot2();
+        if (!didWarnUncachedGetSnapshot) {
+          var cachedValue = getSnapshot2();
+          objectIs(value, cachedValue) || (console.error(
+            "The result of getSnapshot should be cached to avoid an infinite loop"
+          ), didWarnUncachedGetSnapshot = true);
+        }
+        cachedValue = useState30({
+          inst: { value, getSnapshot: getSnapshot2 }
+        });
+        var inst = cachedValue[0].inst, forceUpdate = cachedValue[1];
+        useLayoutEffect6(
+          function() {
+            inst.value = value;
+            inst.getSnapshot = getSnapshot2;
+            checkIfSnapshotChanged(inst) && forceUpdate({ inst });
+          },
+          [subscribe, value, getSnapshot2]
+        );
+        useEffect33(
+          function() {
+            checkIfSnapshotChanged(inst) && forceUpdate({ inst });
+            return subscribe(function() {
+              checkIfSnapshotChanged(inst) && forceUpdate({ inst });
+            });
+          },
+          [subscribe]
+        );
+        useDebugValue(value);
+        return value;
+      }
+      function checkIfSnapshotChanged(inst) {
+        var latestGetSnapshot = inst.getSnapshot;
+        inst = inst.value;
+        try {
+          var nextValue = latestGetSnapshot();
+          return !objectIs(inst, nextValue);
+        } catch (error) {
+          return true;
+        }
+      }
+      function useSyncExternalStore$1(subscribe, getSnapshot2) {
+        return getSnapshot2();
+      }
+      "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
+      var React46 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState30 = React46.useState, useEffect33 = React46.useEffect, useLayoutEffect6 = React46.useLayoutEffect, useDebugValue = React46.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
+      exports.useSyncExternalStore = void 0 !== React46.useSyncExternalStore ? React46.useSyncExternalStore : shim;
+      "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
+    })();
+  }
+});
+
+// node_modules/.pnpm/use-sync-external-store@1.5.0_react@19.1.1/node_modules/use-sync-external-store/shim/index.js
+var require_shim = __commonJS({
+  "node_modules/.pnpm/use-sync-external-store@1.5.0_react@19.1.1/node_modules/use-sync-external-store/shim/index.js"(exports, module) {
+    "use strict";
+    if (false) {
+      module.exports = null;
+    } else {
+      module.exports = require_use_sync_external_store_shim_development();
+    }
+  }
+});
+
 // node_modules/.pnpm/lodash@4.17.21/node_modules/lodash/lodash.js
 var require_lodash = __commonJS({
   "node_modules/.pnpm/lodash@4.17.21/node_modules/lodash/lodash.js"(exports, module) {
@@ -14588,7 +14664,7 @@ var observerFinalizationRegistry = new UniversalFinalizationRegistry(function(ad
 });
 
 // node_modules/.pnpm/mobx-react-lite@4.1.0_mobx@6.13.7_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/mobx-react-lite/es/useObserver.js
-var import_shim = __toESM(require_react());
+var import_shim = __toESM(require_shim());
 function createReaction(adm) {
   adm.reaction = new Reaction("observer".concat(adm.name), function() {
     var _a4;
@@ -30757,7 +30833,7 @@ var import_react54 = __toESM(require_react());
 // node_modules/.pnpm/react-arborist@3.4.3_@types+node@22.17.2_@types+react@19.1.10_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-arborist/dist/module/components/provider.js
 var import_jsx_runtime52 = __toESM(require_jsx_runtime());
 var import_react52 = __toESM(require_react());
-var import_shim2 = __toESM(require_react());
+var import_shim2 = __toESM(require_shim());
 
 // node_modules/.pnpm/react-arborist@3.4.3_@types+node@22.17.2_@types+react@19.1.10_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-arborist/dist/module/context.js
 var import_react24 = __toESM(require_react());
@@ -38749,6 +38825,17 @@ react-dom/cjs/react-dom.development.js:
   (**
    * @license React
    * react-dom.development.js
+   *
+   * Copyright (c) Meta Platforms, Inc. and affiliates.
+   *
+   * This source code is licensed under the MIT license found in the
+   * LICENSE file in the root directory of this source tree.
+   *)
+
+use-sync-external-store/cjs/use-sync-external-store-shim.development.js:
+  (**
+   * @license React
+   * use-sync-external-store-shim.development.js
    *
    * Copyright (c) Meta Platforms, Inc. and affiliates.
    *
