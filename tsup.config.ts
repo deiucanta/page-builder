@@ -6,7 +6,13 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-  external: ['react', 'react/jsx-runtime'],
+  external: [
+    'react',
+    'react-dom',
+    'react/jsx-runtime',
+    'react/jsx-dev-runtime',
+    'react-dom/client'
+  ],
   bundle: true,
   splitting: false,
   treeshake: false,
