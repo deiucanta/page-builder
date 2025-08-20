@@ -131,14 +131,15 @@ type BlockSnapshotIn = SnapshotIn<typeof Block>;
 interface PageBuilderProps {
     blocks: BlockSnapshotIn[];
     initialData?: any;
-    onDataChange?: (data: any) => void;
     onSave?: (data: any) => Promise<void>;
     onPublish?: (data: any) => Promise<void>;
     previewUrl?: string;
-    saving?: boolean;
     className?: string;
+    debounce?: number;
 }
-declare const PageBuilder: ({ blocks, initialData, onDataChange, onSave, onPublish, previewUrl, saving, className, }: PageBuilderProps) => react_jsx_runtime.JSX.Element;
+declare const PageBuilder: (({ blocks, initialData, onSave, onPublish, previewUrl, className, debounce, }: PageBuilderProps) => react_jsx_runtime.JSX.Element) & {
+    displayName: string;
+};
 
 declare const Field: mobx_state_tree_dist_internal.IUnionType<[mobx_state_tree.IModelType<{
     name: mobx_state_tree.ISimpleType<string>;

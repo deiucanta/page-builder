@@ -598,7 +598,6 @@ var TextField = import_mobx_state_tree6.types.model("TextField", {
   }
 })).actions((self) => ({
   setValue: (node, path, value) => {
-    console.log("setValue", path, value);
     node.setPropValue(path, value);
   }
 }));
@@ -1780,145 +1779,143 @@ var import_react_arborist = require("react-arborist");
 var import_use_resize_observer = __toESM(require("use-resize-observer"));
 var import_lodash11 = require("lodash");
 var import_jsx_runtime21 = require("react/jsx-runtime");
-var PageBuilder = ({
-  blocks,
-  initialData,
-  onDataChange,
-  onSave,
-  onPublish,
-  previewUrl,
-  saving = false,
-  className
-}) => {
-  const [{ store, history }] = (0, import_react11.useState)(() => createStoreAndHistory(blocks));
-  (0, import_react11.useEffect)(() => {
-    if (initialData) {
-      store.setData(initialData);
-    }
-  }, [initialData, store]);
-  (0, import_react11.useEffect)(() => {
-    if (onDataChange) {
-      onDataChange(store.data);
-    }
-  }, [store.data, onDataChange]);
-  return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(StoreProvider, { value: store, children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(StoreHistoryProvider, { value: history, children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
-    PageBuilderInner,
-    {
-      onSave,
-      onPublish,
-      previewUrl,
-      saving,
-      className
-    }
-  ) }) });
-};
-var PageBuilderInner = (0, import_mobx_react_lite11.observer)(({
-  onSave,
-  onPublish,
-  previewUrl,
-  saving,
-  className
-}) => {
-  const store = useStore();
-  const treeRef = (0, import_react11.useRef)(null);
-  const iframeRef = (0, import_react11.useRef)(null);
-  const treeContainer = (0, import_use_resize_observer.default)();
-  (0, import_react11.useEffect)(() => {
-    if (!treeRef.current) return;
-    if (!store.selectedNode) return;
-    treeRef.current.select(store.selectedNode.id);
-  }, [store.selectedNode]);
-  const selectedNodeId = store.selectedNode?.id;
-  const handleSave = async () => {
-    if (onSave) {
-      await onSave(store.data);
-      iframeRef.current?.contentWindow?.postMessage("router-refresh", "*");
-    }
-  };
-  const handlePublish = async () => {
-    if (onPublish) {
-      await onPublish(store.data);
-    }
-  };
-  return /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: cn("h-screen flex", className), children: [
-    /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "flex flex-col", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "flex justify-between items-center p-2 border-b", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(History, {}),
-        saving && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { children: "saving" }),
-        /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(DropdownMenu, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Button, { variant: "ghost", size: "icon", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(import_lucide_react8.EllipsisVerticalIcon, { className: "w-4 h-4" }) }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(DropdownMenuContent, { onCloseAutoFocus: (e) => e.preventDefault(), children: [
-            onSave && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DropdownMenuItem, { onClick: handleSave, children: "Save" }),
-            onPublish && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DropdownMenuItem, { onClick: handlePublish, children: "Publish" }),
-            /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
-              DropdownMenuItem,
-              {
-                onClick: async (e) => {
-                  e.stopPropagation();
-                  store.pasteNode();
-                },
-                children: "Paste"
-              }
-            ),
-            /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DropdownMenuSeparator, {}),
-            /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DropdownMenuLabel, { children: "Add Block" }),
-            store.blocks.map((block) => /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
-              DropdownMenuItem,
-              {
-                onClick: (e) => {
-                  e.stopPropagation();
-                  store.createNode("root", 0, block.type);
-                },
-                children: (0, import_lodash11.startCase)(block.type)
-              },
-              block.type
-            ))
-          ] })
-        ] })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { ref: treeContainer.ref, className: "flex-1 min-h-0", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
-        import_react_arborist.Tree,
-        {
-          rowHeight: 40,
-          width: treeContainer.width,
-          height: treeContainer.height,
-          ref: treeRef,
-          data: store.data,
-          initialOpenState: store.openMap,
-          onMove: ({ dragIds, parentId, index }) => {
-            store.moveNodes(parentId, index, dragIds);
-          },
-          onDelete: ({ ids }) => {
-            store.deleteNodes(ids);
-          },
-          onSelect: (nodes) => {
-            const ids = nodes.map((node) => node.id);
-            if (ids.length === 1 && ids[0]) {
-              store.selectNode(ids[0]);
-            }
-          },
-          onToggle: (id) => {
-            const node = store.findNode(id);
-            if (!node) return;
-            node.toggle();
-          },
-          selectionFollowsFocus: true,
-          children: NodeRenderer
-        }
-      ) })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { className: "flex-1 min-w-0", children: previewUrl && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
-      Canvas,
-      {
-        iframeRef,
-        url: previewUrl,
-        selectedNodeId,
-        onSelect: (id) => store.selectNode(id)
+var PageBuilder = (0, import_mobx_react_lite11.observer)(
+  ({
+    blocks,
+    initialData,
+    onSave,
+    onPublish,
+    previewUrl,
+    className,
+    debounce = 1e3
+  }) => {
+    const [{ store, history }] = (0, import_react11.useState)(() => createStoreAndHistory(blocks));
+    const [saving, setSaving] = (0, import_react11.useState)(false);
+    const saveTimeoutRef = (0, import_react11.useRef)(void 0);
+    const treeRef = (0, import_react11.useRef)(null);
+    const iframeRef = (0, import_react11.useRef)(null);
+    const treeContainer = (0, import_use_resize_observer.default)();
+    (0, import_react11.useEffect)(() => {
+      if (initialData) {
+        store.setData(initialData);
       }
-    ) }),
-    /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { className: "w-[300px] p-4 overflow-auto", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(BlockEditor, {}) })
-  ] });
-});
+    }, [initialData, store]);
+    const saveData = async () => {
+      if (onSave) {
+        setSaving(true);
+        try {
+          await onSave(store.data);
+          iframeRef.current?.contentWindow?.postMessage("router-refresh", "*");
+        } finally {
+          setSaving(false);
+        }
+      }
+    };
+    (0, import_react11.useEffect)(() => {
+      if (!onSave) return;
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      saveTimeoutRef.current = setTimeout(() => {
+        saveData();
+      }, debounce);
+      return () => {
+        if (saveTimeoutRef.current) {
+          clearTimeout(saveTimeoutRef.current);
+        }
+      };
+    }, [store.data, debounce]);
+    (0, import_react11.useEffect)(() => {
+      if (!treeRef.current) return;
+      if (!store.selectedNode) return;
+      treeRef.current.select(store.selectedNode.id);
+    }, [store.selectedNode]);
+    const selectedNodeId = store.selectedNode?.id;
+    const handlePublish = async () => {
+      if (onPublish) {
+        await onPublish(store.data);
+      }
+    };
+    return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(StoreProvider, { value: store, children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(StoreHistoryProvider, { value: history, children: /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: cn("h-screen flex", className), children: [
+      /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "flex flex-col", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "flex justify-between items-center p-2 border-b", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(History, {}),
+          saving && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { children: "saving" }),
+          /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(DropdownMenu, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Button, { variant: "ghost", size: "icon", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(import_lucide_react8.EllipsisVerticalIcon, { className: "w-4 h-4" }) }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(DropdownMenuContent, { onCloseAutoFocus: (e) => e.preventDefault(), children: [
+              onSave && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DropdownMenuItem, { onClick: () => saveData(), children: "Save" }),
+              onPublish && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DropdownMenuItem, { onClick: handlePublish, children: "Publish" }),
+              /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
+                DropdownMenuItem,
+                {
+                  onClick: async (e) => {
+                    e.stopPropagation();
+                    store.pasteNode();
+                  },
+                  children: "Paste"
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DropdownMenuSeparator, {}),
+              /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DropdownMenuLabel, { children: "Add Block" }),
+              store.blocks.map((block) => /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
+                DropdownMenuItem,
+                {
+                  onClick: (e) => {
+                    e.stopPropagation();
+                    store.createNode("root", 0, block.type);
+                  },
+                  children: (0, import_lodash11.startCase)(block.type)
+                },
+                block.type
+              ))
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { ref: treeContainer.ref, className: "flex-1 min-h-0", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
+          import_react_arborist.Tree,
+          {
+            rowHeight: 40,
+            width: treeContainer.width,
+            height: treeContainer.height,
+            ref: treeRef,
+            data: store.data,
+            initialOpenState: store.openMap,
+            onMove: ({ dragIds, parentId, index }) => {
+              store.moveNodes(parentId, index, dragIds);
+            },
+            onDelete: ({ ids }) => {
+              store.deleteNodes(ids);
+            },
+            onSelect: (nodes) => {
+              const ids = nodes.map((node) => node.id);
+              if (ids.length === 1 && ids[0]) {
+                store.selectNode(ids[0]);
+              }
+            },
+            onToggle: (id) => {
+              const node = store.findNode(id);
+              if (!node) return;
+              node.toggle();
+            },
+            selectionFollowsFocus: true,
+            children: NodeRenderer
+          }
+        ) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { className: "flex-1 min-w-0", children: previewUrl && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
+        Canvas,
+        {
+          iframeRef,
+          url: previewUrl,
+          selectedNodeId,
+          onSelect: (id) => store.selectNode(id)
+        }
+      ) }),
+      /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { className: "w-[300px] p-4 overflow-auto", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(BlockEditor, {}) })
+    ] }) }) });
+  }
+);
 var History = (0, import_mobx_react_lite11.observer)(() => {
   const history = useStoreHistory();
   return /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "flex gap-2", children: [
@@ -1961,7 +1958,10 @@ var NodeRenderer = ({ node, style, dragHandle }) => {
             {
               variant: "ghost",
               size: "icon",
-              className: cn("opacity-0 group-hover:opacity-100 transition", open && "opacity-100"),
+              className: cn(
+                "opacity-0 group-hover:opacity-100 transition",
+                open && "opacity-100"
+              ),
               children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(import_lucide_react8.EllipsisVerticalIcon, { className: "w-4 h-4" })
             }
           ) }),

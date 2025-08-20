@@ -21,7 +21,6 @@ export const TextField = types
   }))
   .actions((self) => ({
     setValue: (node: Instance<typeof Node>, path: string[], value: string) => {
-      console.log('setValue', path, value)
       node.setPropValue(path, value)
     },
   }))

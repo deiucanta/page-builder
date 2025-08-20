@@ -558,7 +558,6 @@ var TextField = types6.model("TextField", {
   }
 })).actions((self) => ({
   setValue: (node, path, value) => {
-    console.log("setValue", path, value);
     node.setPropValue(path, value);
   }
 }));
@@ -1740,152 +1739,155 @@ function DropdownMenuSeparator({
 }
 
 // src/PageBuilder.tsx
-import { ChevronDownIcon as ChevronDownIcon3, ChevronUpIcon as ChevronUpIcon2, EllipsisVerticalIcon, MinusIcon } from "lucide-react";
+import {
+  ChevronDownIcon as ChevronDownIcon3,
+  ChevronUpIcon as ChevronUpIcon2,
+  EllipsisVerticalIcon,
+  MinusIcon
+} from "lucide-react";
 import { observer as observer11 } from "mobx-react-lite";
 import { useEffect as useEffect3, useRef as useRef3, useState as useState5 } from "react";
 import { Tree } from "react-arborist";
 import useResizeObserver from "use-resize-observer";
 import { startCase as startCase10 } from "lodash";
 import { Fragment as Fragment3, jsx as jsx21, jsxs as jsxs16 } from "react/jsx-runtime";
-var PageBuilder = ({
-  blocks,
-  initialData,
-  onDataChange,
-  onSave,
-  onPublish,
-  previewUrl,
-  saving = false,
-  className
-}) => {
-  const [{ store, history }] = useState5(() => createStoreAndHistory(blocks));
-  useEffect3(() => {
-    if (initialData) {
-      store.setData(initialData);
-    }
-  }, [initialData, store]);
-  useEffect3(() => {
-    if (onDataChange) {
-      onDataChange(store.data);
-    }
-  }, [store.data, onDataChange]);
-  return /* @__PURE__ */ jsx21(StoreProvider, { value: store, children: /* @__PURE__ */ jsx21(StoreHistoryProvider, { value: history, children: /* @__PURE__ */ jsx21(
-    PageBuilderInner,
-    {
-      onSave,
-      onPublish,
-      previewUrl,
-      saving,
-      className
-    }
-  ) }) });
-};
-var PageBuilderInner = observer11(({
-  onSave,
-  onPublish,
-  previewUrl,
-  saving,
-  className
-}) => {
-  const store = useStore();
-  const treeRef = useRef3(null);
-  const iframeRef = useRef3(null);
-  const treeContainer = useResizeObserver();
-  useEffect3(() => {
-    if (!treeRef.current) return;
-    if (!store.selectedNode) return;
-    treeRef.current.select(store.selectedNode.id);
-  }, [store.selectedNode]);
-  const selectedNodeId = store.selectedNode?.id;
-  const handleSave = async () => {
-    if (onSave) {
-      await onSave(store.data);
-      iframeRef.current?.contentWindow?.postMessage("router-refresh", "*");
-    }
-  };
-  const handlePublish = async () => {
-    if (onPublish) {
-      await onPublish(store.data);
-    }
-  };
-  return /* @__PURE__ */ jsxs16("div", { className: cn("h-screen flex", className), children: [
-    /* @__PURE__ */ jsxs16("div", { className: "flex flex-col", children: [
-      /* @__PURE__ */ jsxs16("div", { className: "flex justify-between items-center p-2 border-b", children: [
-        /* @__PURE__ */ jsx21(History, {}),
-        saving && /* @__PURE__ */ jsx21("div", { children: "saving" }),
-        /* @__PURE__ */ jsxs16(DropdownMenu, { children: [
-          /* @__PURE__ */ jsx21(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ jsx21(Button, { variant: "ghost", size: "icon", children: /* @__PURE__ */ jsx21(EllipsisVerticalIcon, { className: "w-4 h-4" }) }) }),
-          /* @__PURE__ */ jsxs16(DropdownMenuContent, { onCloseAutoFocus: (e) => e.preventDefault(), children: [
-            onSave && /* @__PURE__ */ jsx21(DropdownMenuItem, { onClick: handleSave, children: "Save" }),
-            onPublish && /* @__PURE__ */ jsx21(DropdownMenuItem, { onClick: handlePublish, children: "Publish" }),
-            /* @__PURE__ */ jsx21(
-              DropdownMenuItem,
-              {
-                onClick: async (e) => {
-                  e.stopPropagation();
-                  store.pasteNode();
-                },
-                children: "Paste"
-              }
-            ),
-            /* @__PURE__ */ jsx21(DropdownMenuSeparator, {}),
-            /* @__PURE__ */ jsx21(DropdownMenuLabel, { children: "Add Block" }),
-            store.blocks.map((block) => /* @__PURE__ */ jsx21(
-              DropdownMenuItem,
-              {
-                onClick: (e) => {
-                  e.stopPropagation();
-                  store.createNode("root", 0, block.type);
-                },
-                children: startCase10(block.type)
-              },
-              block.type
-            ))
-          ] })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsx21("div", { ref: treeContainer.ref, className: "flex-1 min-h-0", children: /* @__PURE__ */ jsx21(
-        Tree,
-        {
-          rowHeight: 40,
-          width: treeContainer.width,
-          height: treeContainer.height,
-          ref: treeRef,
-          data: store.data,
-          initialOpenState: store.openMap,
-          onMove: ({ dragIds, parentId, index }) => {
-            store.moveNodes(parentId, index, dragIds);
-          },
-          onDelete: ({ ids }) => {
-            store.deleteNodes(ids);
-          },
-          onSelect: (nodes) => {
-            const ids = nodes.map((node) => node.id);
-            if (ids.length === 1 && ids[0]) {
-              store.selectNode(ids[0]);
-            }
-          },
-          onToggle: (id) => {
-            const node = store.findNode(id);
-            if (!node) return;
-            node.toggle();
-          },
-          selectionFollowsFocus: true,
-          children: NodeRenderer
-        }
-      ) })
-    ] }),
-    /* @__PURE__ */ jsx21("div", { className: "flex-1 min-w-0", children: previewUrl && /* @__PURE__ */ jsx21(
-      Canvas,
-      {
-        iframeRef,
-        url: previewUrl,
-        selectedNodeId,
-        onSelect: (id) => store.selectNode(id)
+var PageBuilder = observer11(
+  ({
+    blocks,
+    initialData,
+    onSave,
+    onPublish,
+    previewUrl,
+    className,
+    debounce = 1e3
+  }) => {
+    const [{ store, history }] = useState5(() => createStoreAndHistory(blocks));
+    const [saving, setSaving] = useState5(false);
+    const saveTimeoutRef = useRef3(void 0);
+    const treeRef = useRef3(null);
+    const iframeRef = useRef3(null);
+    const treeContainer = useResizeObserver();
+    useEffect3(() => {
+      if (initialData) {
+        store.setData(initialData);
       }
-    ) }),
-    /* @__PURE__ */ jsx21("div", { className: "w-[300px] p-4 overflow-auto", children: /* @__PURE__ */ jsx21(BlockEditor, {}) })
-  ] });
-});
+    }, [initialData, store]);
+    const saveData = async () => {
+      if (onSave) {
+        setSaving(true);
+        try {
+          await onSave(store.data);
+          iframeRef.current?.contentWindow?.postMessage("router-refresh", "*");
+        } finally {
+          setSaving(false);
+        }
+      }
+    };
+    useEffect3(() => {
+      if (!onSave) return;
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      saveTimeoutRef.current = setTimeout(() => {
+        saveData();
+      }, debounce);
+      return () => {
+        if (saveTimeoutRef.current) {
+          clearTimeout(saveTimeoutRef.current);
+        }
+      };
+    }, [store.data, debounce]);
+    useEffect3(() => {
+      if (!treeRef.current) return;
+      if (!store.selectedNode) return;
+      treeRef.current.select(store.selectedNode.id);
+    }, [store.selectedNode]);
+    const selectedNodeId = store.selectedNode?.id;
+    const handlePublish = async () => {
+      if (onPublish) {
+        await onPublish(store.data);
+      }
+    };
+    return /* @__PURE__ */ jsx21(StoreProvider, { value: store, children: /* @__PURE__ */ jsx21(StoreHistoryProvider, { value: history, children: /* @__PURE__ */ jsxs16("div", { className: cn("h-screen flex", className), children: [
+      /* @__PURE__ */ jsxs16("div", { className: "flex flex-col", children: [
+        /* @__PURE__ */ jsxs16("div", { className: "flex justify-between items-center p-2 border-b", children: [
+          /* @__PURE__ */ jsx21(History, {}),
+          saving && /* @__PURE__ */ jsx21("div", { children: "saving" }),
+          /* @__PURE__ */ jsxs16(DropdownMenu, { children: [
+            /* @__PURE__ */ jsx21(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ jsx21(Button, { variant: "ghost", size: "icon", children: /* @__PURE__ */ jsx21(EllipsisVerticalIcon, { className: "w-4 h-4" }) }) }),
+            /* @__PURE__ */ jsxs16(DropdownMenuContent, { onCloseAutoFocus: (e) => e.preventDefault(), children: [
+              onSave && /* @__PURE__ */ jsx21(DropdownMenuItem, { onClick: () => saveData(), children: "Save" }),
+              onPublish && /* @__PURE__ */ jsx21(DropdownMenuItem, { onClick: handlePublish, children: "Publish" }),
+              /* @__PURE__ */ jsx21(
+                DropdownMenuItem,
+                {
+                  onClick: async (e) => {
+                    e.stopPropagation();
+                    store.pasteNode();
+                  },
+                  children: "Paste"
+                }
+              ),
+              /* @__PURE__ */ jsx21(DropdownMenuSeparator, {}),
+              /* @__PURE__ */ jsx21(DropdownMenuLabel, { children: "Add Block" }),
+              store.blocks.map((block) => /* @__PURE__ */ jsx21(
+                DropdownMenuItem,
+                {
+                  onClick: (e) => {
+                    e.stopPropagation();
+                    store.createNode("root", 0, block.type);
+                  },
+                  children: startCase10(block.type)
+                },
+                block.type
+              ))
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx21("div", { ref: treeContainer.ref, className: "flex-1 min-h-0", children: /* @__PURE__ */ jsx21(
+          Tree,
+          {
+            rowHeight: 40,
+            width: treeContainer.width,
+            height: treeContainer.height,
+            ref: treeRef,
+            data: store.data,
+            initialOpenState: store.openMap,
+            onMove: ({ dragIds, parentId, index }) => {
+              store.moveNodes(parentId, index, dragIds);
+            },
+            onDelete: ({ ids }) => {
+              store.deleteNodes(ids);
+            },
+            onSelect: (nodes) => {
+              const ids = nodes.map((node) => node.id);
+              if (ids.length === 1 && ids[0]) {
+                store.selectNode(ids[0]);
+              }
+            },
+            onToggle: (id) => {
+              const node = store.findNode(id);
+              if (!node) return;
+              node.toggle();
+            },
+            selectionFollowsFocus: true,
+            children: NodeRenderer
+          }
+        ) })
+      ] }),
+      /* @__PURE__ */ jsx21("div", { className: "flex-1 min-w-0", children: previewUrl && /* @__PURE__ */ jsx21(
+        Canvas,
+        {
+          iframeRef,
+          url: previewUrl,
+          selectedNodeId,
+          onSelect: (id) => store.selectNode(id)
+        }
+      ) }),
+      /* @__PURE__ */ jsx21("div", { className: "w-[300px] p-4 overflow-auto", children: /* @__PURE__ */ jsx21(BlockEditor, {}) })
+    ] }) }) });
+  }
+);
 var History = observer11(() => {
   const history = useStoreHistory();
   return /* @__PURE__ */ jsxs16("div", { className: "flex gap-2", children: [
@@ -1928,7 +1930,10 @@ var NodeRenderer = ({ node, style, dragHandle }) => {
             {
               variant: "ghost",
               size: "icon",
-              className: cn("opacity-0 group-hover:opacity-100 transition", open && "opacity-100"),
+              className: cn(
+                "opacity-0 group-hover:opacity-100 transition",
+                open && "opacity-100"
+              ),
               children: /* @__PURE__ */ jsx21(EllipsisVerticalIcon, { className: "w-4 h-4" })
             }
           ) }),
