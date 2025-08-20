@@ -1776,8 +1776,7 @@ var PageBuilder = observer11(
       if (onSave) {
         setSaving(true);
         try {
-          await onSave(store.data);
-          iframeRef.current?.contentWindow?.postMessage("router-refresh", "*");
+          await onSave(store.data, iframeRef.current);
         } finally {
           setSaving(false);
         }

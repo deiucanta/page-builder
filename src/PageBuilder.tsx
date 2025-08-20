@@ -35,7 +35,7 @@ import { BlockSnapshotIn } from "@/store/Block";
 export interface PageBuilderProps {
   blocks: BlockSnapshotIn[]; // Block snapshot definitions
   initialData?: any;
-  onSave?: (data: any) => Promise<void>;
+  onSave?: (data: any, iframe?: HTMLIFrameElement | null) => Promise<void>;
   onPublish?: (data: any) => Promise<void>;
   previewUrl?: string;
   className?: string;
@@ -69,8 +69,7 @@ export const PageBuilder = observer(
       if (onSave) {
         setSaving(true);
         try {
-          await onSave(store.data);
-          iframeRef.current?.contentWindow?.postMessage('router-refresh', '*');
+          await onSave(store.data, iframeRef.current);
         } finally {
           setSaving(false);
         }

@@ -1804,8 +1804,7 @@ var PageBuilder = (0, import_mobx_react_lite11.observer)(
       if (onSave) {
         setSaving(true);
         try {
-          await onSave(store.data);
-          iframeRef.current?.contentWindow?.postMessage("router-refresh", "*");
+          await onSave(store.data, iframeRef.current);
         } finally {
           setSaving(false);
         }

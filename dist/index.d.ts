@@ -131,7 +131,7 @@ type BlockSnapshotIn = SnapshotIn<typeof Block>;
 interface PageBuilderProps {
     blocks: BlockSnapshotIn[];
     initialData?: any;
-    onSave?: (data: any) => Promise<void>;
+    onSave?: (data: any, iframe?: HTMLIFrameElement | null) => Promise<void>;
     onPublish?: (data: any) => Promise<void>;
     previewUrl?: string;
     className?: string;
@@ -552,4 +552,4 @@ declare const RootStore: mobx_state_tree.IModelType<{
     }, {}, mobx_state_tree._NotCustomized, mobx_state_tree._NotCustomized>>) | null | undefined;
 }, mobx_state_tree._NotCustomized, mobx_state_tree._NotCustomized>;
 
-export { Block, type BlockType, Field, Node, PageBuilder, type PageBuilderProps, RootStore };
+export { Block, type BlockSnapshotIn, type BlockType, Field, Node, PageBuilder, type PageBuilderProps, RootStore };
